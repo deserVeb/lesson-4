@@ -1,19 +1,31 @@
 from human import Human
+from logger import logger, log_errors
 
 class Student(Human):
     def __init__(self, name, age):
         super().__init__(name, age)
         self.knowledge = 40
-        self.day = 0  # лічильник днів життя
+        self.day = 0
+        logger.info(f"Створено Student({self.name})")
 
-    # робимо студента ітерованим
+    @log_errors
+    def study(self):
+        if self.energy >= 20:
+            self.energy -= 20
+            self.knowledge += 15
+            logger.info(f"{self.name} навчається. Знання {self.knowledge}, енергія {self.energy}")
+            print(f"{self.name} навчається 📚 (+15 знань)")
+        else:
+            logger.warning(f"{self.name} занадто втомлений")
+            print(f"{self.name} занадто втомлений для навчання 😵")
+
+    # --- Симуляція днів ---
     def __iter__(self):
         return self
 
     def __next__(self):
         self.day += 1
 
-        # логіка нового дня
         if self.energy >= 30:
             self.study()
             action = "вчився 📚"
@@ -21,12 +33,5 @@ class Student(Human):
             self.rest()
             action = "відпочивав 😴"
 
-        return f"День {self.day}: {self.name} {action}. Енергія: {self.energy}, Знання: {self.knowledge}"
-
-    def study(self):
-        if self.energy >= 20:
-            self.energy -= 20
-            self.knowledge += 15
-            print(f"{self.name} навчається 📚 (+15 знань)")
-        else:
-            print(f"{self.name} занадто втомлений для навчання 😵")
+        logger.info(f"День {self.day}: {action}")
+        return f"День {self.day}: {self.name} {action}. Енергія {self.energy}, Знання {self.knowledge}"
